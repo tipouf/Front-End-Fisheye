@@ -8,6 +8,10 @@
       href="https://fonts.googleapis.com/css?family=DM+Sans&display=swap"
       rel="stylesheet"
     />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css""
+    />
     <title>Fisheye - photographe</title>
   </head>
   <body>
@@ -40,7 +44,7 @@
     </main>
     <div id="contact_modal">
       <div class="modal">
-        <header>
+        <header role="banner">
           <h2>Contactez-moi</h2>
           <img
             src="assets/icons/close.svg"
@@ -48,14 +52,42 @@
             alt="close modal"
           />
         </header>
-        <form>
+        <form action="" method="post">
           <div>
             <label>Prénom</label>
             <input />
           </div>
+          <div>
+            <label>Nom</label>
+            <input />
+          </div>
+          <div>
+            <label>Email</label>
+            <input />
+          </div>
+          <div>
+            <label>Message</label>
+            <textarea></textarea>
+          </div>
+
           <button aria-label="envoyer" class="contact_button">Envoyer</button>
         </form>
       </div>
+    </div>
+    <div class="lightbox">
+      <div class="lightbox-content">
+        <div class="lightbox-close">
+          <i class="fa-solid fa-xmark"></i>
+        </div>
+        <div class="lightbox-left icon">
+          <i class="fa-solid fa-chevron-left"></i>
+        </div>
+        <div class="media-content"></div>
+   
+        <div class="lightbox-right icon">
+          
+          <i class="fa-solid fa-chevron-right"></i>
+        </div>
     </div>
 
     <script src="/scripts/pages/photographer.js"></script>
