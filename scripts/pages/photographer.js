@@ -1,34 +1,48 @@
-let urlParams = new URLSearchParams(window.location.search);
-let id = parseInt(urlParams.get("id"));
-const filter = document.querySelector("#filter");
+import { getAllorOnePhotographer } from "../api/getPhotographer.js";
+import {
+  likeContainer,
+  mediaCard,
+  photographerHero,
+} from "../templates/photographer.js";
 
-filter.addEventListener("change", (event) => {
-  changeFilter(event.target.value);
-});
+let allLikes;
 
-async function changeFilter(sort) {
-  const photographer = await getPhotographer(id);
-  let photographerFirstName = getFirstName(photographer?.photographer?.name);
+async function changeFilter(sort, id, photographerFirstName) {
+  const medias = await getAllorOnePhotographer(id).then(({ photographers }) => {
+    return photographers[0].media;
+  });
 
-  const medias = (await getMedia(id, sort)) || [];
-  displayMedia(medias, photographerFirstName);
+  const mediaSort = await getMedia(medias, sort);
+
+  displayMedia(mediaSort, photographerFirstName);
 }
 
 function displayLightbox() {
   lightbox.style.display = "block";
-  
 }
 
-
 async function init() {
-  const photographer = await getPhotographer(id);
-  const media = await getMedia(id);
+  let urlParams = new URLSearchParams(window.location.search);
+  let id = parseInt(urlParams.get("id"));
+  const filter = document.querySelector("#filter");
 
-  let photographerFirstName = await photographer?.photographer?.name;
+  const { photographers } = await getAllorOnePhotographer(id);
+  const { name: photographerFirstName, media } = await photographers[0];
 
-  displayPhotographer(photographer);
+  filter.addEventListener("change", (event) => {
+    changeFilter(event.target.value, id, getFirstName(photographerFirstName));
+  });
+
+  allLikes = media.reduce((total, media) => total + media.likes, 0);
+
+  const photographersWithAllLikes = {
+    ...photographers[0],
+    allLikes: allLikes,
+  }
+
+  displayPhotographer(photographersWithAllLikes);
   displayMedia(media, getFirstName(photographerFirstName));
-
+  displayLikeCounter(photographersWithAllLikes);
 }
 
 function getFirstName(photographerFirstName) {
@@ -36,23 +50,7 @@ function getFirstName(photographerFirstName) {
   return firstName;
 }
 
-async function getPhotographer(id) {
-  let photographer = await fetch("data/photographers.json")
-    .then((response) => response.json())
-    .then((data) =>
-      data.photographers.find((photographer) => photographer.id === id)
-    );
-
-  return { photographer };
-}
-
-async function getMedia(photographId, sort = "popularite") {
-  let media = await fetch("data/photographers.json")
-    .then((response) => response.json())
-    .then((data) =>
-      data.media.filter((media) => media.photographerId === photographId)
-    );
-
+async function getMedia(media, sort = "popularite") {
   switch (sort) {
     case "popularite":
       media.sort((a, b) => b.likes - a.likes);
@@ -68,26 +66,26 @@ async function getMedia(photographId, sort = "popularite") {
   return media;
 }
 
-async function displayPhotographer({ photographer }) {
+function displayPhotographer(photographer) {
   const photographInfoSection = document.querySelector(".photograph-infos");
   const photographPicture = document.querySelector(".photograph-picture");
 
-  const photographerData = photographerHero(photographer);
-  photographInfoSection.appendChild(photographerData.userInfos);
-  photographPicture.appendChild(photographerData.userPicture);
+  const { userInfos, userPicture } = photographerHero(photographer);
+  photographInfoSection.appendChild(userInfos);
+  photographPicture.appendChild(userPicture);
 }
 
-async function displayMedia(medias, firstName) {
-  if (!medias) {
-    return;
-  }
-
+function displayMedia(medias, firstName) {
   const mediaSection = document.querySelector(".media-section");
   mediaSection.innerHTML = "";
 
-  medias.forEach((media) => {
+  medias?.forEach((media) => {
     mediaSection.appendChild(mediaCard(media, firstName));
   });
+}
+
+function displayLikeCounter({allLikes, price}) {
+  likeContainer(allLikes, price);
 }
 
 init();
