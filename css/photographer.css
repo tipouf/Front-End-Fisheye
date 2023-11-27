@@ -1,9 +1,32 @@
+* {
+  --main-color: #901c1c;
+  --secondary-color: #d3573c;
+  --form-color: #312e2e;
+  --form-secondary-color: #db8876;
+ 
+  
+}
+
 #contact_modal {
   display: none;
-  width: 100%;
-  height: 100%;
   position: fixed;
-  top: 5%;
+  top: -5%;
+  border-radius: 5px;
+  background-color: var(--form-secondary-color);
+  width: 50%;
+
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 35px;
+  border:none;
+}
+
+
+@media screen and (min-width: 1600px) {
+  #contact_modal {
+    width: 40%;
+  }
 }
 
 .photograph-header {
@@ -31,12 +54,18 @@
   width: 170px;
   height: 70px;
   border: none;
-  background-color: #901c1c;
+  background-color: var(--main-color);
   border-radius: 5px;
   cursor: pointer;
+}
+
+.contact_button:hover, .contact_button:focus {
+  background-color: var(--secondary-color);
+  color:black
 }
 
 select {
+  margin-left: 20px;
   font-size: 20px;
   font-weight: bold;
   color: white;
@@ -44,35 +73,38 @@ select {
   width: 170px;
   height: 70px;
   border: none;
-  background-color: #901c1c;
+  background-color: var(--main-color);
   border-radius: 5px;
   cursor: pointer;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" fill="white"><polygon points="0,0 100,0 50,50" /></svg>');
+
+  background-repeat: no-repeat;
+  background-position-x: 90%;
+  background-position-y: 60%;
+  background-size: 20px;
 }
 
 select option {
-  font-size: 20px;
   font-weight: bold;
-  color: white;
-  padding: 11px;
-  width: 170px;
-  height: 70px;
-  border: none;
-  background-color: #901c1c;
-  border-radius: 5px;
-  cursor: pointer;
+  color: black;
 }
 
-.modal {
-  border-radius: 5px;
-  background-color: #db8876;
-  width: 50%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  padding: 35px;
-  margin: auto;
+select:hover, select:focus {
+  background-color: var(--secondary-color);
+  color:black;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" fill="black"><polygon points="0,0 100,0 50,50" /></svg>');
 }
+  
+
+input,
+textarea {
+  font-size: xx-large;
+  font-weight: bold;
+}
+
 
 .modal header {
   justify-content: space-between;
@@ -87,6 +119,22 @@ select option {
   font-size: 64px;
   font-weight: normal;
   text-align: center;
+  color: black;
+  margin:0;
+}
+
+.modal textarea {
+  height: 100px !important;
+  font-size: 36px;
+  font-weight: bold;
+  padding: 10px;
+}
+
+.modal p {
+  font-size: 42px;
+  margin: 0;
+  width: 100%;
+  margin-bottom:10px;
 }
 
 form {
@@ -96,8 +144,15 @@ form {
   align-items: flex-start;
 }
 
+#formTitle, .photographerNameForm {
+  margin: 0;
+  font-size: 64px;
+  font-weight: normal;
+  color: black;
+}
+
 form label {
-  color: #312e2e;
+  color: var(--form-color);
   font-size: 36px;
 }
 
@@ -117,15 +172,36 @@ textarea {
   border-radius: 5px;
 }
 
+form #message {
+  height: 100px;
+}
+
 .media-filter {
-  margin: 20px 100px 20px 100px;
+  display: flex;
+  align-items: center;
+  position: relative;
+  gap:10px;
+  margin: 30px 100px 30px 100px;
   font-weight: bold;
+}
+
+.media-filter h2 {
+  margin: 0;
+  color: black;
+  font-size: 24px;
+}
+
+.media-filter-menu {
+  display: flex;
+  position: relative;
+  gap: 10px;
+  top:-30px;
 }
 
 .media-section {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
-  gap: 100px;
+  gap: 30px 100px;
   margin: 0 100px;
 }
 
@@ -151,37 +227,12 @@ textarea {
 
 .media-infos p {
   margin-top: 5px;
-  color: #901c1c;
+  color: var(--main-color);
   font-size: 20px;
 }
 
 .likes-number {
   cursor: pointer;
-}
-
-.lightbox {
-  display: none;
-  position: fixed;
-  z-index: 1;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background-color: white;
-}
-
-.lightbox-content {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  height: 100%;
-}
-
-.lightbox-infos {
-  display: flex;
-  width: 100%;
-  justify-content: start
 }
 
 .media-content {
@@ -198,7 +249,40 @@ textarea {
   max-width: 100%;
   max-height: 80%;
   border-radius: 5px;
+}
 
+#lightbox {
+  display: none;
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: white;
+  border:none;  
+}
+
+.lightbox-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
+
+.lightbox-picture {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.lightbox-infos {
+  display: flex;
+  width: 100%;
+  justify-content: start;
 }
 
 .lightbox-left,
@@ -210,7 +294,7 @@ textarea {
 }
 
 .lightbox-left {
-  display:  flex;
+  display: flex;
   margin-right: 20px;
   justify-content: flex-end;
 }
@@ -223,15 +307,17 @@ textarea {
 .lightbox-close {
   position: absolute;
   top: 15px;
-  right: 35px;
-  color: #f1f1f1;
+  right: 60px;
+  color: var(--main-color);
   font-size: 40px;
   font-weight: bold;
   transition: 0.3s;
 }
 
 .lightbox-close:hover,
-.lightbox-close:focus {
+.lightbox-close:focus,
+#left-arrow:hover,
+#right-arrow:hover {
   color: #bbb;
   text-decoration: none;
   cursor: pointer;
@@ -244,11 +330,10 @@ textarea {
   font-size: 20px;
   width: 200px;
   height: 50px;
-  background-color: #DB8876;
+  background-color: #db8876;
   position: fixed;
   bottom: 0px;
   right: 20px;
   border-radius: 5px 5px 0 0;
   padding-inline: 20px;
 }
-

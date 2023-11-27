@@ -6,15 +6,13 @@ function displayData(photographers) {
 
   photographers.forEach((photographer) => {
     const photographerModel = photographerCard(photographer);
-    console.log(photographerModel);
     photographersSection.appendChild(photographerModel);
   });
 }
 
 async function init() {
-  getAllorOnePhotographer().then(({ photographers }) => {
-    displayData(photographers);
-  });
+  const { photographers } = await getAllorOnePhotographer();
+  displayData(photographers);
 }
 
 init();

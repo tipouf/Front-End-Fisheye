@@ -1,91 +1,221 @@
 import { getAllorOnePhotographer } from "../api/getPhotographer.js";
+import { photographerHero } from "../templates/photographer.js";
+import { getMediaCard } from "../templates/media.js";
+import { displayLikesContainer } from "../templates/displayLikesContainer.js";
 import {
-  likeContainer,
-  mediaCard,
-  photographerHero,
-} from "../templates/photographer.js";
-
-let allLikes;
-
-async function changeFilter(sort, id, photographerFirstName) {
-  const medias = await getAllorOnePhotographer(id).then(({ photographers }) => {
-    return photographers[0].media;
-  });
-
-  const mediaSort = await getMedia(medias, sort);
-
-  displayMedia(mediaSort, photographerFirstName);
-}
-
-function displayLightbox() {
-  lightbox.style.display = "block";
-}
+  getFirstName,
+  changeFilter,
+  closeModal,
+  displayModal,
+} from "../utils/utils.js";
 
 async function init() {
   let urlParams = new URLSearchParams(window.location.search);
   let id = parseInt(urlParams.get("id"));
-  const filter = document.querySelector("#filter");
 
   const { photographers } = await getAllorOnePhotographer(id);
-  const { name: photographerFirstName, media } = await photographers[0];
+  const photographer = photographers[0];
 
-  filter.addEventListener("change", (event) => {
-    changeFilter(event.target.value, id, getFirstName(photographerFirstName));
-  });
+  const allLikes = photographer.media.reduce(
+    (total, media) => total + media.likes,
+    0
+  );
 
-  allLikes = media.reduce((total, media) => total + media.likes, 0);
-
-  const photographersWithAllLikes = {
-    ...photographers[0],
+  const allMedias = {
+    allMedias: changeFilter(photographer.media),
+    firstName: getFirstName(photographer.name),
     allLikes: allLikes,
-  }
+    photographerPrice: photographer.price,
+  };
 
-  displayPhotographer(photographersWithAllLikes);
-  displayMedia(media, getFirstName(photographerFirstName));
-  displayLikeCounter(photographersWithAllLikes);
+  // Reorder medias
+  sortMedias(allMedias);
+
+  // Display photographer hero banner
+  photographerHero(photographers[0]);
+
+  // Display medias
+  displayMedias(allMedias);
+
+  // Display total likes container
+  displayLikesContainer(allLikes, photographers[0].price);
+
+  // Handle contact form  & add name in contact form
+  handleContactForm();
+
+  // Validate form
+  validateForm();
 }
 
-function getFirstName(photographerFirstName) {
-  const firstName = photographerFirstName.split(" ")[0].replace("-", " ");
-  return firstName;
-}
-
-async function getMedia(media, sort = "popularite") {
-  switch (sort) {
-    case "popularite":
-      media.sort((a, b) => b.likes - a.likes);
-      break;
-    case "Date":
-      media.sort((a, b) => new Date(b.date) - new Date(a.date));
-      break;
-    case "Titre":
-      media.sort((a, b) => (a.title > b.title ? 1 : -1));
-      break;
-  }
-
-  return media;
-}
-
-function displayPhotographer(photographer) {
-  const photographInfoSection = document.querySelector(".photograph-infos");
-  const photographPicture = document.querySelector(".photograph-picture");
-
-  const { userInfos, userPicture } = photographerHero(photographer);
-  photographInfoSection.appendChild(userInfos);
-  photographPicture.appendChild(userPicture);
-}
-
-function displayMedia(medias, firstName) {
+function displayMedias(medias) {
   const mediaSection = document.querySelector(".media-section");
   mediaSection.innerHTML = "";
 
-  medias?.forEach((media) => {
-    mediaSection.appendChild(mediaCard(media, firstName));
+  medias.allMedias?.forEach((media, index) => {
+    const { image, video, title, likes } = media;
+
+    const mediaLink = `assets/photographers/${medias.firstName}/${
+      image ?? video
+    }`;
+
+    const mediaElement = image
+      ? `<img src="${mediaLink}" alt="${title}">`
+      : `<video src="${mediaLink}" autoplay loop muted></video>`;
+
+    mediaSection.appendChild(
+      getMediaCard({
+        mediaElement,
+        title,
+        likes,
+        allMedias: medias.allMedias,
+        firstName: medias.firstName,
+        allLikes: medias.allLikes,
+        photographerPrice: medias.photographerPrice,
+        index: index,
+      })
+    );
   });
 }
 
-function displayLikeCounter({allLikes, price}) {
-  likeContainer(allLikes, price);
+function sortMedias(allMedias) {
+  const menus = document.querySelectorAll(".menu");
+  let lastSort = "popularite";
+
+  menus.forEach((menu) => {
+    menu.addEventListener("click", (e) => {
+      let listItem = e.target;
+
+      if (menu.classList.contains("open")) {
+        menu.prepend(listItem);
+      }
+
+      listItem.closest("ul").classList.toggle("open");
+
+      listItem
+        .closest("ul")
+        .setAttribute(
+          "aria-expanded",
+          listItem.closest("ul").classList.contains("open") ? "true" : "false"
+        );
+
+      let sort = listItem.getAttribute("id");
+
+      if (lastSort !== sort) {
+        lastSort = sort;
+        displayMedias({
+          ...allMedias,
+          allMedias: changeFilter(allMedias.allMedias, sort),
+        });
+      }
+    });
+  });
 }
+
+function handleContactForm() {
+
+  // Add name in contact form
+  const getPhotographerName = document.querySelector(".photographerNameHero").textContent;
+  const contactMeElement = document.querySelector(".photographerNameForm");
+  contactMeElement.innerHTML = getPhotographerName;
+
+  // Handle contact form
+  const contactButton = document.querySelector("#contactButton");
+  contactButton.addEventListener("click", () => {
+    displayModal("contact_modal");
+  });
+
+  contactButton.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      displayModal("contact_modal");
+    }
+  });
+
+  const closeModalButton = document.querySelector("#closeForm");
+  closeModalButton.addEventListener("click", () => {
+    closeModal("contact_modal");
+  });
+
+  closeModalButton.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" || event.key === "Escape") {
+      event.preventDefault();
+      closeModal("contact_modal");
+    }
+  });
+}
+
+function validateForm() {
+  const form = document.querySelector("form");
+
+  const firstName = document.querySelector("#firstName");
+  const lastName = document.querySelector("#lastName");
+  const email = document.querySelector("#email");
+  const message = document.querySelector("#message");
+
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+
+    if (checkInputs(firstName, lastName, email, message)) {
+      const dataToSend = {
+        firstName,
+        lastName,
+        email,
+        message,
+      };
+
+      console.log(dataToSend);
+
+      form.reset();
+      closeModal("contact_modal");
+    }
+  });
+}
+
+function checkInputs(firstName, lastName, email, message) {
+  let isFormValid = true;
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const firstNameError = document.getElementById("firstNameError");
+  const lastNameError = document.getElementById("lastNameError");
+  const emailError = document.getElementById("emailError");
+  const messageError = document.getElementById("messageError");
+
+  if (firstName.value === "") {
+    firstNameError.style.display = "block";
+    firstName.style = "border: 2px solid red";
+    isFormValid = false;
+  } else {
+    firstNameError.style.display = "none";
+    firstName.style = "border: 2px solid green";
+  }
+
+  if (lastName.value === "") {
+    lastNameError.style.display = "block";
+    lastName.style = "border: 2px solid red";
+    isFormValid = false;
+  } else {
+    lastNameError.style.display = "none";
+    lastName.style = "border: 2px solid green";
+  }
+
+  if (email.value === "" || !emailRegex.test(email.value)) {
+    emailError.style.display = "block";
+    email.style = "border: 2px solid red";
+    isFormValid = false;
+  } else {
+    emailError.style.display = "none";
+    email.style = "border: 2px solid green";
+  }
+
+  if (message.value === "") {
+    messageError.style.display = "block";
+    message.style = "border: 2px solid red";
+    isFormValid = false;
+  } else {
+    messageError.style.display = "none";
+    message.style = "border: 2px solid green";
+  }
+
+  return isFormValid;
+}
+
 
 init();
