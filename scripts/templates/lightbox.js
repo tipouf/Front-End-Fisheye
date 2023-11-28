@@ -1,4 +1,4 @@
-import { closeModal, displayModal } from "/scripts/utils/utils.js";
+import { closeModal, displayModal } from "../utils/utils.js";
 
 function displayLightbox(index, mediasSorted, firstName) {
   const lightboxClose = document.querySelector(".lightbox-close");
@@ -18,6 +18,17 @@ function displayLightbox(index, mediasSorted, firstName) {
     displayLightboxTemplate();
   });
 
+  rightArrow.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      if (index === mediasSorted.length - 1) {
+        index = 0;
+      } else {
+        index += 1;
+      }
+      displayLightboxTemplate();
+    }
+  })
+
   leftArrow.addEventListener("click", () => {
     if (index === 0) {
       index = mediasSorted.length - 1;
@@ -26,6 +37,17 @@ function displayLightbox(index, mediasSorted, firstName) {
     }
     displayLightboxTemplate();
   });
+
+  leftArrow.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      if (index === 0) {
+        index = mediasSorted.length - 1;
+      } else {
+        index -= 1;
+      }
+      displayLightboxTemplate();
+    }
+  })
 
   lightboxClose.addEventListener("click", () => {
     closeModal("lightbox");
